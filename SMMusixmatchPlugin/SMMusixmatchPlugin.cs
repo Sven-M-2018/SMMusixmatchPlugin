@@ -23,7 +23,7 @@ namespace SMMusixmatchPlugin
     public class SMMusixmatchPlugin : IPlugin, ILyrics
     {
         public string Name => "SMMusixmatch";
-        public string Version => "0.1.0";
+        public string Version => "1.0.0";
 
         public async Task GetLyrics(PluginLyricsInput input, CancellationToken ct, Action<PluginLyricsResult> updateAction)
         {
@@ -77,7 +77,7 @@ namespace SMMusixmatchPlugin
             }
             if (web.Contains(@"<h2 class=""mxm-empty__title"">Instrumental</h2>"))
             {
-                return "<p>[Instrumental]</p>";
+                return "<p>[Instrumental]</p>\n<p><i><sub>powered by Musixmatch</sub></i></p>";
             }
             Regex LyricsRegex = new Regex(@"<p class=""mxm-lyrics__content "">(?'lyrics'.*)<div></div><div><div id="""" class=""lyrics-report", RegexOptions.Compiled);
             var match = LyricsRegex.Match(web.Replace("\r\n", "<br/>").Replace("\r", "<br/>").Replace("\n", "<br/>"));
@@ -97,7 +97,10 @@ namespace SMMusixmatchPlugin
             lyrics = lyrics.Replace("<br/><br/>", "</p>\n<p>").Replace("<br/>", "<br/>\n");
             lyrics = lyrics.Replace("´", "'").Replace("`", "'").Replace("’", "'").Replace("‘", "'");
             lyrics = lyrics.Replace("…", "...").Replace(" ...", "...");
-            return "<p>" + lyrics.Trim() + "</p>";
+            lyrics = lyrics.Replace("<p><br/>\n", "<p>\n");
+            lyrics = Regex.Replace(lyrics, @"\s+<br/>", "<br/>", RegexOptions.IgnoreCase);
+            lyrics = Regex.Replace(lyrics, @"\s+<p/>", "<p/>", RegexOptions.IgnoreCase);
+            return "<p>" + lyrics.Trim() + "</p>\n<p><i><sub>powered by Musixmatch</sub></i></p>";
         }
     }
 }
